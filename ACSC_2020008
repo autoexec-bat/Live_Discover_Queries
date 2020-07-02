@@ -1,0 +1,127 @@
+## Created by AzRoN @ Sophos 2020.
+## 2020-008 Copy-Paste Compromise Live Discover query
+## https://www.cyber.gov.au/acsc/view-all-content/advisories/advisory-2020-008-copy-paste-compromises-tactics-techniques-and-procedures-used-target-multiple-australian-networks
+## 
+
+/* Housekeeping Prior to start - prevents sequential execution from failing */
+DROP TABLE acsc2020008;
+
+-- Create temp table with necessary columns
+CREATE TABLE acsc2020008 (domain text, earl text, ipaddy text, SHA text, file text);
+INSERT INTO acsc2020008 (domain,earl,ipaddy,SHA,file) VALUES ('domain','earl','ipaddy','SHA','file');
+
+/* -- Search Sophos DNS journal over the last 2 days for domain IOCs */
+UPDATE acsc2020008 SET domain = (SELECT CAST(CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS BIT) as 'Exists' FROM sophos_dns_journal WHERE (
+		name like '%mailguardonline.net%' OR
+		name like '%cybersecuritiesinc.net%')
+		AND time > STRFTIME('%s','NOW','-2 days'));
+
+/* -- Search Sophos URL journal over the last 2 days for URL IOCs */
+UPDATE acsc2020008 SET earl = (SELECT CAST(CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS BIT) as 'Exists' FROM sophos_url_journal WHERE (
+		url like '%https://api.onedrive.com/v1.0/shares/s!Ajp1Jcp4TBtmgRyuTf0Ow-_r40_x/driveitem/content%' OR
+		url like '%https://www.dropbox.com/s/qf15ewsstzk4qoz/Thesis%20Information%20to%20be%20referenced%20from.ppt?dl=0%' OR
+		url like '%https://uceaf62bf364381a378c816b41ba.dl.dropboxusercontent.com/cd/0/get/A2Vm2UTAy5MCwUTkAgc7zFzIQyACqaHZ2yiX2ORjm3twvsr6cvxtZv0ARG5lyIZq4N60QtQgVm5JL5pTbto45FtwfTs8d9-QuL3_YsAukrIOoZLpoOKRi_DRl5Wxq6TQHIk/file?dl=1%' OR
+		url like '%https://login.contact.cybersecuritiesinc.net/%' OR
+		url like '%https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=code&client_id=8f43aaa9-d9d7-4eb1-8172-0669dae105aa&redirect_uri=https://www.mailguardonline.net/oauth/api/microsoft/callback&scope=offline_access user.read mail.readwrite&state=EmERFnNRcD2DbezEvK245MXBEokQh6&response_mode=form_post%' OR
+		url like '%https://www.mailguardonline.net/oauth/api/microsoft/callback%')
+		AND time > STRFTIME('%s','NOW','-2 days'));
+	
+/* -- Search Sophos ip journal over the last 2 days for ip connect IOCs */
+UPDATE acsc2020008 SET ipaddy = (SELECT CAST(CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS BIT) as 'Exists' FROM sophos_ip_journal WHERE (
+		destination = '104.156.233.219' OR
+		destination = '131.153.16.198' OR
+		destination = '134.209.97.239' OR
+		destination = '138.197.204.4' OR
+		destination = '139.59.90.114' OR
+		destination = '144.202.85.4' OR
+		destination = '154.16.136.100' OR
+		destination = '159.203.29.101' OR
+		destination = '167.172.36.95' OR
+		destination = '172.86.75.49' OR
+		destination = '172.86.75.7' OR
+		destination = '172.86.75.86' OR
+		destination = '176.10.99.200' OR
+		destination = '193.187.173.38' OR
+		destination = '194.36.191.227' OR
+		destination = '194.71.130.113' OR
+		destination = '198.255.66.27' OR
+		destination = '206.189.180.4' OR
+		destination = '206.189.98.83' OR
+		destination = '23.129.64.156' OR
+		destination = '23.228.74.58' OR
+		destination = '31.214.157.153' OR
+		destination = '43.231.77.218' OR
+		destination = '45.125.192.221' OR
+		destination = '45.153.231.121' OR
+		destination = '45.63.41.207' OR
+		destination = '5.188.37.38' OR
+		destination = '5.8.8.9' OR
+		destination = '54.78.227.17' OR
+		destination = '79.134.235.87' OR
+		destination = '79.134.235.89' OR
+		destination = '81.194.38.139' OR
+		destination = '92.38.188.85' OR
+		destination = '94.103.95.25' OR
+		destination = '139.99.237.34' OR		
+		destination = '193.187.173.38' OR
+		destinationPort = '6666' OR
+		destinationPort = '6667' OR
+		destinationPort = '6668' OR
+		destinationPort = '6669' OR
+		destinationPort = '6670' OR
+		destinationPort = '6671' OR
+		destinationPort = '6672' OR
+		destinationPort = '6673' OR
+		destinationPort = '6674' OR
+		destinationPort = '6675')
+		AND time > STRFTIME('%s','NOW','-2 days'));	
+			
+/* -- Search Sophos file hash journal over the last 2 days for SHA IOCs */
+UPDATE acsc2020008 SET SHA = (SELECT CAST(CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS BIT) as 'Exists' FROM sophos_file_hash_journal WHERE (
+		sha256 = 'b094a8616804fbd5ff21b9c8153622eca7909b9f35251579ba383e16de11c0ed' OR
+		sha256 = '0f56c703e9b7ddeb90646927bac05a5c6d95308c8e13b88e5d4f4b572423e036' OR
+		sha256 = 'e84badc0eeacf3bf3a9e562662f05ebf05ab19196b740566a4e72a469460a55d')
+		AND time > STRFTIME('%s','NOW','-2 days'));
+		
+/* -- Search Sophos file journal over the last 2 hours for file IOCs being created */
+UPDATE acsc2020008 SET file = (SELECT CAST(CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END AS BIT) as 'Exists' FROM sophos_file_journal WHERE (
+		pathname like '%ccc.dll%' OR
+		pathname like '%jp.exe%' OR
+		pathname like '%Potato.dll%' OR
+		pathname like '%tmdbglog.dll%' OR
+		pathname like '%ROAMING\Microsoft\Word\STARTUP\Template.dotm%' OR
+		pathname like '%Logs\PerfLogs%' OR
+		pathname like '%ProgramData\.Lookup%')
+		AND time > STRFTIME('%s','NOW','-2 hours'));
+
+/* -- Compile results and make display more friendly */
+SELECT
+	CASE domain
+	WHEN '0' THEN 'Domain IOC NOT present'
+	WHEN '1' THEN 'Domain IOC IS present'
+	ELSE 'Error'
+	END AS 'Domain IOC present',
+	CASE earl
+	WHEN '0' THEN 'URL IOC NOT present'
+	WHEN '1' THEN 'URL IOC IS present'
+	ELSE 'Error'
+	END AS 'URL IOC present',
+	CASE ipaddy
+	WHEN '0' THEN 'IP or Port IOC NOT present'
+	WHEN '1' THEN 'IP or PORT IOC IS present'
+	ELSE 'Error'
+	END AS 'IP and PORT IOC present',
+	CASE SHA
+	WHEN '0' THEN 'SHA IOC NOT present'
+	WHEN '1' THEN 'SHA IOC IS present'
+	ELSE 'Error'
+	END AS 'SHA IOC present',
+	CASE file
+	WHEN '0' THEN 'File IOC NOT present'
+	WHEN '1' THEN 'File IOC IS present'
+	ELSE 'Error'
+	END AS 'File IOC present'
+	FROM acsc2020008 where (domain = '1' OR earl = '1' OR ipaddy ='1' OR SHA = '1' OR file = '1');
+	
+/* -- Clean up temp table */
+DROP TABLE acsc2020008;
