@@ -1,7 +1,7 @@
 ## Created by AzRoN @ Sophos 2020.
 ## 2020-008 Copy-Paste Compromise Live Discover query
 ## https://www.cyber.gov.au/acsc/view-all-content/advisories/advisory-2020-008-copy-paste-compromises-tactics-techniques-and-procedures-used-target-multiple-australian-networks
-## 
+## COPY all from BELOW this LINE only.
 
 /* Housekeeping Prior to start - prevents sequential execution from failing */
 DROP TABLE acsc2020008;
